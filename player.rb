@@ -38,7 +38,7 @@ class Player
 		elsif warrior.look[1].captive? or (warrior.look[1].empty? and warrior.look[2].captive? )
 			warrior.walk!			
 			
-		elsif (( !warrior.look[0].empty? and !warrior.look[1].wall? ) or (warrior.feel.empty? and !warrior.look[1].empty? and !warrior.look[1].wall?))
+		elsif (( !warrior.look[0].empty? and !warrior.look[1].wall? ))
 			warrior.walk!(:backward)
 			
 		elsif warrior.look[0].empty? and (!warrior.look[1].empty? and !warrior.look[1].wall?) or (!warrior.look[2].empty? and !warrior.look[2].wall?)
