@@ -1,10 +1,16 @@
 class Player
 	#measure if warrior has hit back wall yet
 	@@been_back = 0
+	@@HEALTH = {:MIN => 16, :RETREAT => 10}
 	
   def play_turn(warrior)
 		#read if under attack
 		is_under_attack(warrior)
+		
+		#check if at rear wall
+		if warrior.feel(:backward).wall?
+			@@been_back = 1
+		end
 		
 		#check if facing "backward"
 		if warrior.feel.wall?
@@ -21,8 +27,18 @@ class Player
 		elsif warrior.feel(:backward).captive?
 			warrior.rescue!(:backward)
 			
+			#check for captive in front, to avoid shooting them
+		elsif warrior.look[1].captive? or (warrior.look[1].empty? and warrior.look[2].captive? )
+			warrior.walk!			
+			
+		elsif (( !warrior.look[0].empty? and !warrior.look[1].wall? ) or (warrior.feel.empty? and !warrior.look[1].empty? and !warrior.look[1].wall?))
+			warrior.walk!(:backward)
+			
+		elsif warrior.look[0].empty? and warrior.look[1].empty? and (!warrior.look[2].empty? and !warrior.look[2].wall?)
+			warrior.shoot!
+			
 			#retreat if sufficiently wounded and not in melee range
-		elsif warrior.health < 10 and @incombat and warrior.feel.empty?
+		elsif warrior.health < @@HEALTH[:RETREAT] and @incombat and warrior.feel.empty?
 			warrior.walk!(:backward)
 			
 			#attack if enemy in front
@@ -32,13 +48,8 @@ class Player
 			warrior.attack!(:backward)
 			
 			#heal if below threshold
-		elsif warrior.health < 16 and !@incombat
+		elsif warrior.health < @@HEALTH[:MIN] and !@incombat
 			warrior.rest!
-			
-			#check if at rear wall
-		elsif warrior.feel(:backward).wall?
-			@@been_back = 1
-			warrior.walk!
 			
 			#walk by default
 		else
