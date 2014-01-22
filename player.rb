@@ -1,3 +1,13 @@
+=begin
+Instance var: @incombat, from function
+Class var: @@been_back, to track if the wall has been touched
+Constants: @@HEALTH, for tracking minimum and retreat health values
+Array: used to pull data from warrior.look
+Hash: @@HEALTH
+Functions: is_under_attack
+Comments: everywhere
+=end
+
 class Player
 	#measure if warrior has hit back wall yet
 	@@been_back = 0
@@ -6,6 +16,9 @@ class Player
   def play_turn(warrior)
 		#read if under attack
 		is_under_attack(warrior)
+		look0 = warrior.look[0]
+		look1 = warrior.look[1]
+		look2 = warrior.look[2]
 		
 		#check if at rear wall
 		if warrior.feel(:backward).wall?
@@ -35,13 +48,13 @@ class Player
 			warrior.walk!(:backward)
 			
 			#check for captive in front, to avoid shooting them
-		elsif warrior.look[1].captive? or (warrior.look[1].empty? and warrior.look[2].captive? )
+		elsif look1.captive? or (look1.empty? and look2.captive? )
 			warrior.walk!			
 			
-		elsif (( !warrior.look[0].empty? and !warrior.look[1].wall? ))
+		elsif (( !look0.empty? and !look1.wall? ))
 			warrior.walk!(:backward)
 			
-		elsif warrior.look[0].empty? and (!warrior.look[1].empty? and !warrior.look[1].wall?) or (!warrior.look[2].empty? and !warrior.look[2].wall?)
+		elsif look0.empty? and (!look1.empty? and !look1.wall?) or (!look1.empty? and !look2.wall?)
 			warrior.shoot!
 			
 			#retreat if sufficiently wounded and not in melee range
