@@ -17,15 +17,22 @@ class Player
 			warrior.pivot!(:backward)
 			@@been_back = 1
 			
-			#initial movement is toward rear wall
-		elsif (warrior.feel(:backward).empty? and @@been_back == 0)
-			warrior.walk!(:backward)
-			
 			#captive checks
 		elsif warrior.feel.captive? 
 			warrior.rescue!
 		elsif warrior.feel(:backward).captive?
 			warrior.rescue!(:backward)
+			
+			#attack if enemy in front
+		elsif (!warrior.feel.empty? and !warrior.feel.wall?)
+			warrior.attack!
+			#or in rear
+		elsif !warrior.feel(:backward).empty? and !warrior.feel(:backward).wall?
+			warrior.attack!(:backward)
+			
+			#initial movement is toward rear wall
+		elsif (warrior.feel(:backward).empty? and @@been_back == 0)
+			warrior.walk!(:backward)
 			
 			#check for captive in front, to avoid shooting them
 		elsif warrior.look[1].captive? or (warrior.look[1].empty? and warrior.look[2].captive? )
@@ -34,18 +41,12 @@ class Player
 		elsif (( !warrior.look[0].empty? and !warrior.look[1].wall? ) or (warrior.feel.empty? and !warrior.look[1].empty? and !warrior.look[1].wall?))
 			warrior.walk!(:backward)
 			
-		elsif warrior.look[0].empty? and warrior.look[1].empty? and (!warrior.look[2].empty? and !warrior.look[2].wall?)
+		elsif warrior.look[0].empty? and (!warrior.look[1].empty? and !warrior.look[1].wall?) or (!warrior.look[2].empty? and !warrior.look[2].wall?)
 			warrior.shoot!
 			
 			#retreat if sufficiently wounded and not in melee range
 		elsif warrior.health < @@HEALTH[:RETREAT] and @incombat and warrior.feel.empty?
 			warrior.walk!(:backward)
-			
-			#attack if enemy in front
-		elsif (!warrior.feel.empty? and !warrior.feel.wall?)
-			warrior.attack!
-		elsif !warrior.feel(:backward).empty? and !warrior.feel(:backward).wall?
-			warrior.attack!(:backward)
 			
 			#heal if below threshold
 		elsif warrior.health < @@HEALTH[:MIN] and !@incombat
